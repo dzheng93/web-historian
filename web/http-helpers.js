@@ -19,6 +19,12 @@ exports.serveAssets = function(res, asset, callback) {
   if (asset === 'index') {
     assetPath = archive.paths.index;
     res.setHeader('Content-Type', 'text/html');
+  } else if (asset === 'loadingHTML') {
+    assetPath = archive.paths.loadingHTML;
+    res.setHeader('Content-Type', 'text/html');
+  } else {
+    assetPath = archive.paths.archivedSites + '/' + asset;
+    res.setHeader('Content-Type', 'text/html');
   }
 
   fs.readFile(assetPath, function(err, data) {

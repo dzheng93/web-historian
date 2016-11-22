@@ -41,3 +41,10 @@ isUrlArchived:
   -Takes two arguments
     first: url string query
     2nd: callback to run after with argument (true/false) whether or not it is archived
+
+downloadUrls:
+  - Takes one argument:
+    - Array of url strings;
+  1. Iterate over array of url strings
+  2. Do get request for each url
+  3. write files to paths.archivedSites
