@@ -16,21 +16,14 @@ exports.handleRequest = function (req, res) {
   var statusCode;
 
   if (req.method === 'GET') {
-    statusCode = 200;
-
     if (req.url === '/') {
-      httpHelpers.serveAssets(res, 'index', function(err, data) {
-        res.writeHead(statusCode, httpHelpers.headers);
-        res.end(data);
-      });
+      sendStatic(res, 'index', 200);
     } else {
       var siteUrl = req.url;
       archive.isUrlArchived(siteUrl, function(exists) {
+        // If query URL is archived => serve it, else 404
         if (exists) {
-          httpHelpers.serveAssets(res, siteUrl, function(err, data) {
-            res.writeHead(statusCode, httpHelpers.headers);
-            res.end(data);
-          });
+          sendStatic(res, siteUrl, 200);
         } else {
           statusCode = 404;
           res.writeHead(statusCode, httpHelpers.headers);
@@ -38,13 +31,11 @@ exports.handleRequest = function (req, res) {
         }
       }); 
     }
-    
   } else if (req.method === 'POST') {
     statusCode = 302;
     req.on('data', function(data) {
       var url = data.toString('utf8').slice(4);
       archive.isUrlInList(url, function(inList) {
-        // Website is in our list:
         if (inList) {
           // Should prob check if URL has actually been archived yet
           res.setHeader('Location', '/' + url);
@@ -53,10 +44,7 @@ exports.handleRequest = function (req, res) {
         // Website is not in our list
         } else {
           archive.addUrlToList(url, function() {});
-          httpHelpers.serveAssets(res, 'loadingHTML', function(err, data) {
-            res.writeHead(statusCode, httpHelpers.headers);
-            res.end(data);
-          });
+          sendStatic(res, 'loadingHTML', 302);
         }
       });
     });
@@ -65,6 +53,4 @@ exports.handleRequest = function (req, res) {
     res.writeHead(statusCode, httpHelpers.headers);
     res.end(JSON.stringify(''));
   }
-
-
 };
