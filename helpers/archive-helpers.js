@@ -15,7 +15,8 @@ exports.paths = {
   loadingHTML: path.join(__dirname, '../web/public/loading.html'),
   siteAssets: path.join(__dirname, '../web/public'),
   archivedSites: path.join(__dirname, '../archives/sites'),
-  list: path.join(__dirname, '../archives/sites.txt')
+  list: path.join(__dirname, '../archives/sites.txt'),
+  indexToStartArchiving: path.join(__dirname, '../workers/indexToStartArchiving.txt')
 };
 
 // Used for stubbing paths for tests, do not modify
@@ -31,6 +32,8 @@ exports.initialize = function(pathsObj) {
 exports.readListOfUrls = function(callback) {
   fs.readFile(exports.paths.list, 'utf-8', function(error, data) {
     var sitesArr = data.split('\n');
+    // Last element is empty string, remove it:
+    sitesArr.pop();
     callback(sitesArr);
   });
 };
@@ -61,6 +64,7 @@ exports.isUrlArchived = function(url, callback) {
 
 exports.downloadUrls = function(urlArr) {
   urlArr.forEach(function(url) {
+    console.log('Will download: http://' + url);
     request('http://' + url).pipe(fs.createWriteStream(exports.paths.archivedSites + '/' + url));
   });
 

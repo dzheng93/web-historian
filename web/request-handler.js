@@ -12,7 +12,6 @@ exports.handleRequest = function (req, res) {
     });
   };
 
-
   var statusCode;
 
   if (req.method === 'GET') {
@@ -35,12 +34,19 @@ exports.handleRequest = function (req, res) {
     statusCode = 302;
     req.on('data', function(data) {
       var url = data.toString('utf8').slice(4);
+      // Check if URL is in list
       archive.isUrlInList(url, function(inList) {
         if (inList) {
-          // Should prob check if URL has actually been archived yet
-          res.setHeader('Location', '/' + url);
-          res.writeHead(statusCode, httpHelpers.headers);
-          res.end();
+          // Check if URL is actually in archive
+          archive.isUrlArchived(url, function(isInArchive) {
+            if (isInArchive) {
+              res.setHeader('Location', '/' + url);
+              res.writeHead(statusCode, httpHelpers.headers);
+              res.end();
+            } else {
+              sendStatic(res, 'loadingHTML', 302);
+            }
+          });
         // Website is not in our list
         } else {
           archive.addUrlToList(url, function() {});
