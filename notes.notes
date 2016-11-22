@@ -1,0 +1,43 @@
+var sites = {
+  url: true,
+  url2: false,
+  url3: 'pending'
+}
+
+sites will persist in memory, probably in archive-helpers
+On server start (init), reads from disk -> Loading stringified sites obj and set it memory as var sites.
+
+When getting a request, we check in memory sites obj. When updating the sites obj in memory we also have to update it on disk  (to prevent data loss when server reboots). false -> 
+
+
+when a site is archived,
+a file is created with the website url
+/archives/sites/www.google.com
+
+
+If we have the website our archive, a get request is done, where we return the content of a website from the archive.
+
+A 404 status code should be asked for a nonexistent file.
+
+After a post request from the form, sites should be submitted to sites.txt.
+
+
+
+readListOfUrls:
+  - Read sites.txt, applies a .join('\n')
+  - Takes a callback, the argument in that callback is an array of url strings.
+
+isUrlInList:
+  - Takes two arguments:
+    First: url string query
+    2nd: callback, argument is true or false
+
+addUrlToList:
+  - Takes two arguments:
+    First: url string to add
+    2nd: callback (no argument specified), executes after writing url to list
+
+isUrlArchived:
+  -Takes two arguments
+    first: url string query
+    2nd: callback to run after with argument (true/false) whether or not it is archived
