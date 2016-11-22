@@ -26,7 +26,7 @@ exports.handleRequest = function (req, res) {
         } else {
           statusCode = 404;
           res.writeHead(statusCode, httpHelpers.headers);
-          res.end(JSON.stringify(''));
+          res.end('404: Page Not Found');
         }
       }); 
     }
@@ -57,6 +57,6 @@ exports.handleRequest = function (req, res) {
   } else {
     statusCode = 404;
     res.writeHead(statusCode, httpHelpers.headers);
-    res.end(JSON.stringify(''));
+    res.end('404: Page Not Found');
   }
 };
