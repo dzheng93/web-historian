@@ -48,3 +48,7 @@ downloadUrls:
   1. Iterate over array of url strings
   2. Do get request for each url
   3. write files to paths.archivedSites
+
+Need to write:
+- script to make fetcherLog.txt if it doesn't exist
+- script to make indexToStartArchiving.txt if it doesn't exist

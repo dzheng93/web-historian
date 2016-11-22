@@ -16,7 +16,8 @@ exports.paths = {
   siteAssets: path.join(__dirname, '../web/public'),
   archivedSites: path.join(__dirname, '../archives/sites'),
   list: path.join(__dirname, '../archives/sites.txt'),
-  indexToStartArchiving: path.join(__dirname, '../workers/indexToStartArchiving.txt')
+  indexToStartArchiving: path.join(__dirname, '../workers/indexToStartArchiving.txt'),
+  fetcherLog: path.join(__dirname, '../workers/fetcherLog.txt')
 };
 
 // Used for stubbing paths for tests, do not modify
@@ -65,7 +66,7 @@ exports.isUrlArchived = function(url, callback) {
 exports.downloadUrls = function(urlArr) {
   urlArr.forEach(function(url) {
     console.log('Will download: http://' + url);
-    request('http://' + url).pipe(fs.createWriteStream(exports.paths.archivedSites + '/' + url));
+    request('http://' + url).pipe(fs.createWriteStream(exports.paths.archivedSites + '/' + url, {defaultEncoding: 'utf8'}));
   });
 
 };
