@@ -20,4 +20,18 @@ module.exports = function (basePath) {
     // We use fs.mkdirSync to create the folder
     fs.mkdirSync(basePath + '/sites');
   }
+
+  if (!fs.existsSync('../workers/fetcherLog.txt')) {
+    // We use fs.openSync to create the file
+    var file = fs.openSync('../workers/fetcherLog.txt', 'w');
+    fs.closeSync(file);
+  }
+
+  if (!fs.existsSync('../workers/indexToStartArchiving.txt')) {
+    // We use fs.openSync to create the file
+    var file = fs.openSync('../workers/indexToStartArchiving.txt', 'w');
+    fs.writeSync(file, JSON.stringify(0));
+    fs.closeSync(file);
+  }
+
 };
