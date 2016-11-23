@@ -1,36 +1,82 @@
 var fs = require('fs');
 var archive = require('../helpers/archive-helpers');
+var Promise = require('bluebird');
+Promise.promisifyAll(fs);
+
+//---------------------------------------------------------------
+//           Print time stamp to log at start of run
+//---------------------------------------------------------------
 
 var timeStr = new Date().toLocaleTimeString();
 var logStr = 'htmlFetcher started at: ' + timeStr;
-var sitesDowloading = [];
-
 fs.appendFile(archive.paths.fetcherLog, logStr, function(err) {
-      // No callback
 });
 
-// Use the code in `archive-helpers.js` to actually download the urls
-// that are waiting.
 
-fs.readFile(archive.paths.indexToStartArchiving, 'utf-8', function(err, data) {
-  var archiveStartIndex = JSON.parse(data);
-  console.log('indexToStart Archiving:', archiveStartIndex);
+//---------------------------------------------------------------
+//             Fetch Sites Promise Functions
+//---------------------------------------------------------------
 
-  archive.readListOfUrls(function(sitesArr) {
+var downloadNewSites = function(sitesArr) {
+  return new Promise(function(resolve, reject) {
+    var sitesDownloading = [];
     sitesArr.forEach(function(site, index) {
       if (index >= archiveStartIndex) {
-        sitesDowloading.push(site);
+        sitesDownloading.push(site);
         archive.downloadUrls([site]);
       }
     });
-    var logOutput = '\nDownloading sites: ' + sitesDowloading.join(', ') + '\n----------------------------\n';
+    var fetchState = {
+      sitesDownloading: sitesDownloading,
+      nextIndexDownload: sitesArr.length
+    };
+    resolve(fetchState);
+  });
+};
+
+var logger = function(fetchState) {
+  return new Promise(function(resolve, reject) {
+    var logOutput = '\nDownloading sites: ' + fetchState.sitesDownloading.join(', ') + '\n----------------------------\n';
     fs.appendFile(archive.paths.fetcherLog, logOutput, function(err) {
-      // No callback
+      if (err) {
+        reject(err);
+      } else {
+        resolve(fetchState);
+      }
     });
-    fs.writeFile(archive.paths.indexToStartArchiving, JSON.stringify(sitesArr.length), function(err) {
-      // indexToStartArchiving is updated
+  });
+};
+
+var updateArchiveStartIndex = function(fetchState) {
+  return new Promise(function(resolve, reject) {
+    fs.writeFile(archive.paths.indexToStartArchiving, JSON.stringify(fetchState.nextIndexDownload), function(err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
     });
-  });  
-});
+  });
+};
+
+//---------------------------------------------------------------
+//                      RUN PROGRAM
+//---------------------------------------------------------------
+
+var archiveStartIndex;
+
+fs.readFileAsync(archive.paths.indexToStartArchiving, 'utf-8')
+.then(function(data) {
+  archiveStartIndex = JSON.parse(data);
+  console.log('indexToStart Archiving:', archiveStartIndex);
+  return;
+})
+.then(archive.readListOfUrls)
+.then(downloadNewSites)
+.then(logger)
+.then(updateArchiveStartIndex);
+
+
+
 
 
